@@ -3,7 +3,7 @@
 # Documentation: https://wowchemy.com/docs/page-builder/
 #widget: research
 #widget: portfolio
-widget: featured
+widget: research
 
 active: true
 
@@ -13,7 +13,8 @@ headless: true
 # Order that this section appears on the page.
 weight: 20
 
-title: Research Experience
+#title: Research
+title: What we do
 subtitle: ""
 
 content:
@@ -39,6 +40,7 @@ design:
   #   4 = Citation (publication only)
   view: research_item_card
   list_css_class: "research-list-wrap"
+  columns: "1"
   
   
 ---

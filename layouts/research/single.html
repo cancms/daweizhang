@@ -7,37 +7,42 @@
 
 <article class="article article-research">
 
-  {{/* partial "page_header.html" . */}}
 
-
-  <div class="article-container pt-3">
-    <h1>{{ $title }}</h1>
+  <div class="container pt-1">
+    <h1 class="mb-0 common-page-h1-title">{{ $title }}</h1>
 
     {{ with $page.Params.subtitle }}
-    <p class="page-subtitle">{{ . | markdownify | emojify }}</p>
+    <p class=" common-page-subtitle">{{ . | markdownify | emojify }}</p>
     {{end}}
 
-  </div>
 
-  {{/* Featured image */}}
-  <div class="article-header  article-container mt-4 mb-4" >
-    <div style="position: relative">
-      <img src="{{ $featured.RelPermalink }}"  class="featured-image" />
+
+    {{/* Summary */}}
+    {{with $page.Params.summary}}
+    <div class="description" >
+      {{ . | markdownify | emojify }}
     </div>
-  </div>
+    {{end}}
 
 
-  <div class="article-header">
-  </div>
-
-  <div class="article-container">
+    {{/* Featured image */}}
+    {{with $featured}}
+    <div class="article-header   mt-4 mb-4" >
+      <div style="position: relative">
+        <img src="{{ .RelPermalink }}"  class="featured-image" />
+      </div>
+    </div>
+    {{end}}
 
     <div class="article-style">
       {{ .Content }}
     </div>
 
-    {{ partial "page_footer" . }}
 
   </div>
+
+
+
+
 </article>
 {{- end -}}

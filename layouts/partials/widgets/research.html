@@ -1,86 +1,95 @@
+{{/* Featured Content Widget */}}
+
+{{/* Initialise */}}
 {{ $ := .root }}
-{{ $page := .page }}
-{{ $columns := $page.Params.design.columns | default "2" }}
+{{ $st := .page }}
+{{ $items_type := $st.Params.content.page_type | default "post" }}
+{{ $items_count := $st.Params.content.count | default 65535 }}
+{{ $items_sort := $st.Params.content.order| default "desc" }}
 
-<!-- Experience widget -->
-<div class="col-12 {{if eq $columns "2"}}col-lg-8{{end}}">
-  {{ with $page.Content }}{{ . }}{{ end }}
+{{/* Query */}}
+{{ $query := where (where site.RegularPages "Type" $items_type) "Params.featured" true }}
+{{ $archive_page := site.GetPage "Section" $items_type }}
 
-  {{ if $page.Params.experience }}
-  {{ $exp_len := len $page.Params.experience }}
+{{/* Filters */}}
+{{ if $st.Params.content.filters.tag }}
+{{ $archive_page := site.GetPage (printf "tags/%s" (urlize $st.Params.content.filters.tag)) }}
+{{ $query = $query | intersect $archive_page.Pages }}
+{{ end }}
+{{ if $st.Params.content.filters.category }}
+{{ $archive_page := site.GetPage (printf "categories/%s" (urlize $st.Params.content.filters.category)) }}
+{{ $query = $query | intersect $archive_page.Pages }}
+{{ end }}
+{{ if $st.Params.content.filters.publication_type }}
+{{ $archive_page := site.GetPage (printf "publication_types/%s" $st.Params.content.filters.publication_type) }}
+{{ $query = $query | intersect $archive_page.Pages }}
+{{ end }}
+{{ if $st.Params.content.filters.author }}
+{{ $archive_page = site.GetPage (printf "authors/%s" (urlize $st.Params.content.filters.author)) }}
+{{ $query = $query | intersect $archive_page.Pages }}
+{{ end }}
 
+{{ $count := len $query }}
 
+{{/* Sort */}}
+{{ $sort_by := "Date" }}
+{{ $query = sort $query $sort_by $items_sort }}
 
-  {{/* Default to user's custom order (as requested in #1761) as Hugo doesn't support multiple sorts on params. */}}
-  {{ range $idx, $key := $page.Params.experience }}
-  <div class="row experience">
-    <!-- Timeline -->
-    <div class="col-auto text-center flex-column d-none d-sm-flex">
-      <div class="row h-50">
-        <div class="col {{if gt $idx 0}}border-right{{end}}">&nbsp;</div>
-        <div class="col">&nbsp;</div>
-      </div>
-      <div class="m-2">
-        {{/*<span class="badge badge-pill border {{if not .date_end}}exp-fill{{end}}">&nbsp;</span>*/}}
-        <span class="badge badge-pill border {{if eq $idx 0}}exp-fill{{end}}">&nbsp;</span>
-      </div>
-      <div class="row h-50">
-        <div class="col {{if lt $idx (sub $exp_len 1)}}border-right{{end}}">&nbsp;</div>
-        {{/* <div class="col border-right ">&nbsp;</div>*/}}
-        <div class="col">&nbsp;</div>
-      </div>
-    </div>
-    <!-- Content -->
-    <div class="col py-2">
-      <div class="card">
-        <div class="card-body">
+{{/* Limit */}}
+{{ $query = first $items_count $query }}
 
-          {{- if .company_logo}}
-          {{/*{{- $svg_icon := resources.Get (printf "media/icons/brands/%s.svg" .company_logo) -}}*/}}
-          {{- $svg_icon := resources.Get (printf "%s" .company_logo) -}}
-          {{ if not $svg_icon }}{{ errorf "Brand logo not found at `assets/media/icons/brands/%s.svg`" .company_logo }}{{end}}
-          <div class="d-flex align-content-start">
-            <div class="mr-2 mb-2">
-              {{- with .company_url}}<a href="{{.}}" target="_blank" rel="noopener">{{end -}}
-              <img src="{{ $svg_icon.RelPermalink }}"  class="experience-icon-image"  alt="{{.company | plainify}}" loading="lazy">
-              {{- with .company_url}}</a>{{end -}}
-            </div>
-            <div>
-          {{ end }}
+{{/* Localisation */}}
+{{ $i18n := "" }}
+{{ if eq $items_type "post" }}
+{{ $i18n = "more_posts" }}
+{{ else if eq $items_type "event" }}
+{{ $i18n = "more_talks" }}
+{{ else if eq $items_type "publication" }}
+{{ $i18n = "more_publications" }}
+{{ else }}
+{{ $i18n = "more_pages" }}
+{{ end }}
 
-              <div class="section-subheading card-title exp-title text-muted my-0">{{.title | markdownify | emojify}}</div>
-              <div class="section-subheading card-title exp-company text-muted my-0">
-                {{- with .company_url}}<a href="{{.}}" target="_blank" rel="noopener">{{end}}{{.company | markdownify | emojify}}{{with .company_url}}</a>{{end -}}
-              </div>
-              <div class="text-muted exp-meta">
-                {{ (time .date_start) | time.Format ($page.Params.date_format | default "January 2006") }} –
-                {{ if .date_end}}
-                  {{ (time .date_end) | time.Format ($page.Params.date_format | default "January 2006") }}
-                {{else}}
-                  {{ i18n "present" | default "Present" }}
-                {{end}}
-                {{with .location}}
-                  <span class="middot-divider"></span>
-                  <span>{{.}}</span>
-                {{end}}
-              </div>
-
-          {{- if .company_logo}}
-            </div>
-          </div>
-          {{end}}
-
-          {{with .description}}<div class="card-text">{{. | markdownify | emojify}}</div>{{end}}
-        </div>
-      </div>
-    </div>
-  </div>
-  {{end}}
+{{ $columns := $st.Params.design.columns | default "2" }}
 
 
+{{/* $query */}}
 
+<div class="col-12 {{if eq $columns "2"}}col-lg-8{{end}}   {{ $st.Params.design.list_css_class }}  ">
 
+{{ with $st.Content }}{{ . }}{{ end }}
 
+{{ range $index, $post := $query }}
+{{ partial "functions/render_view" (dict "page" $st "item" . "view" ($st.Params.design.view | default "compact") "index" $index) }}
+{{end}}
 
-  {{end}}
+{{/* Archive link */}}
+{{ $show_archive_link := $st.Params.content.archive.enable | default (gt $count $items_count) }}
+{{ if $show_archive_link }}
+
+{{ $archive_link := "" }}
+{{ if $st.Params.content.archive.link }}
+{{ $archive_link = $st.Params.content.archive.link | relLangURL }}
+{{ else }}
+{{ $archive_link = $archive_page.RelPermalink }}
+{{ end }}
+
+{{ $archive_text := $st.Params.content.archive.text | default (i18n $i18n) | default "See all" }}
+
+<div class="see-all">
+  <a href="{{ $archive_link }}">
+    {{ $archive_text | emojify }}
+    <i class="fas fa-angle-right"></i>
+  </a>
 </div>
+{{ end }}
+
+</div>
+
+
+<div class="read-more-btn-wrap" style="padding: 0 0 1rem 0;">
+  <a class="btn-action-primary btn-action btn btn-success btn-lg" href="{{"research" | relURL }}"  >
+  Explore more
+  </a>
+</div>
+

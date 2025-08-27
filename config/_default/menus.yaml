@@ -9,27 +9,27 @@ main:
     weight: 10
 
   - name: Research
-    url: '#research'
+    url: 'research'
     weight: 20
 
   - name: People
-    url: '#people'
+    url: 'people'
     weight: 30
 
   - name: Publications
-    url: '#publications'
+    url: 'publications'
     weight: 40
 
   - name: News
-    url: 'uploads/cv.pdf'
+    url: 'news'
     weight: 50
 
-  - name: Vacancies
-    url: '#contact'
+  - name: Join Us
+    url: 'join_us'
     weight: 50
 
-  - name: Contact
-    url: '#contact'
+  - name: Contact Us
+    url: 'contact_us'
     weight: 60
 
 # Link to a PDF of your resume/CV from the menu.
