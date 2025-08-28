@@ -20,7 +20,7 @@
   {{- $src :=  $item.image | relURL -}}
   {{- $title :=  $picked_item.title | markdownify | emojify -}}
   {{- $journal :=  $picked_item.journal | markdownify | emojify -}}
-  {{- $pub_date :=  $item.publish_date | time.Format "January 01, 2006"  -}}
+  {{- $pub_date :=  $item.publish_date | time.Format "Jan 01, 2006"  -}}
 
     <div class="col-12 col-md-4 ">
       <a  href="{{ $link }}" class="member-a-link quarto-grid-item">
